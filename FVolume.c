@@ -32,10 +32,18 @@ float phaseMobility(){
 
 float cellfaceFlow(Grid grid, row, col, rowDir, colDir ){
     float flow = 0.0;
-    float phaseMobilityWater, phaseMobilityOil, facePermeability, transmissibility, facePressure; 
-    phaseMobilityWater = 
-    facePressureWater =abs(grid->mesh[0][row*grid->Size + col].pressure-grid->mesh[0][(row+rowDir)*grid->Size + (col+colDir)].pressure) - grid->water.density * grid->gravity * grid->deltaZ;
+    float phaseMobilityWater, phaseMobilityOil, facePermeability, transmissibility, facePressureWater, facePressureOil; 
+    float phasePermeabilityW, phasePermeabilityO
+  
+    pressureDiff = abs(grid->mesh[0][row*grid->Size + col].pressure-grid->mesh[0][(row+rowDir)*grid->Size + (col+colDir)].pressure);
+    facePressureWater = pressureDiff - grid->water.density * grid->gravity * grid->deltaZ;
+    facePressureOil = pressureDiff - grid->oil.density * grid->gravity * grid->deltaZ;
+
+    float effectiveSaturation = grid->;
+    relativePermeabilityWater = 
+    phaseMobilityWater = (grid->water.density/grid->water.viscosity)*
     
+
     facePermeability = (2*grid->mesh[0][row*grid->Size + col].permeability*grid->mesh[0][(row+rowDir)*grid->Size + (col + colDir)])/(grid->mesh[0][row*grid->Size + col].permeability + grid->mesh[0][(row+rowDir)*grid->Size + (col + colDir)])  ;
   
     if(rowDir !=0){
