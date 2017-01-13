@@ -36,4 +36,13 @@ void InterpolateGrid(
   UniformGrid fine_grid
 
 );
+/*
+Returns the calculated position in the grid array. If point is beyond the border, the border point is given
+*/
+int GridPosition(
+  UniformGrid grid,
+  int x,
+  int y,
+  int z
+);
 #endif 
