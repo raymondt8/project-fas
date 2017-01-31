@@ -4,9 +4,9 @@ Holds the system information. Grid holds information on water saturation for eac
 */
 
 typedef struct{
-  float viscosity;
-  float density;
-  float relative_permeability;
+  double viscosity;
+  double density;
+  double relative_permeability;
 }Fluid_t;
 
 typedef Fluid_t Fluid;
@@ -19,32 +19,32 @@ typedef struct{
   int z_step, z_size;
   int grid_size;
 
-  float x_face;
-  float y_face;
-  float z_face;  
+  double x_face;
+  double y_face;
+  double z_face;  
 
-  float* saturation;
-  float* pressure;
-  //float* wells, reservoir;   
+  double* saturation;
+  double* pressure;
+  //double* wells, reservoir;   
 
   union{
   struct Fluid_t fluid;
   }oil, water;
 
-  float permeability;
-  float porosity;
-  float saturation_denominator;
+  double permeability;
+  double porosity;
+  double saturation_denominator;
 
 }UniformGrid_t;
 
 typedef UniformGrid_t* UnifromGrid
 
-UniformGrid CreateUniformGrid(int x_step, int y_step, int x_step, float permeability, Fluid Wetting, Fluid NonWetting){
+UniformGrid CreateUniformGrid(int x_step, int y_step, int x_step, double permeability, Fluid Wetting, Fluid NonWetting){
   UniformGrid result = (UniformGrid)calloc(sizeof(UniformGrid));
   result->grid_size = 1.0/(x_step*y_step*z_step);
 
-  result->saturation = (UniformGrid)malloc(sizeof(float)result.grid_size);
-  result->pressure = (UniformGrid)malloc(sizeof(float)result.grid_size);
+  result->saturation = (UniformGrid)malloc(sizeof(double)result.grid_size);
+  result->pressure = (UniformGrid)malloc(sizeof(double)result.grid_size);
 
   result->x_step = x_step;
   result->y_step = y_step;
