@@ -120,7 +120,7 @@ void SimpleSaturationJacobian(UniformGrid jacobian, UniformGrid grid){
     }
   }
 }
-double SaturationFlux(UniformGrid grid,int x,int y,int z int x_direction,int y_direction,int z_direction){
+double SaturationFlux(UniformGrid grid,UniformGrid old_grid,int x,int y,int z int x_direction,int y_direction,int z_direction){
   double result = 0.0;
   if(x_direction != 0 && x+x_direction <0 && x+x_direction >)
   result = grid->x_face*permeability*
@@ -128,13 +128,20 @@ double SaturationFlux(UniformGrid grid,int x,int y,int z int x_direction,int y_d
   if(x + x_dirextion >= 0 && x + x_direction <= grid->x_steps && y + y_direction <= 0 && y + y_direction <= grid->y_steps && z + z_direction >= 0 && z =< grid->z_steps){
     position = GridPosition(grid,x,y,z);
     result = 
+
+    return result;
   }else{
     return 0.0;
   }
 }
 
 double Transmissibility(grid, int position_i int position_j, double flow_direction){
+  //TODO: Extend to use harmonic mean (?)
+  return((grid->x_face * grid->permeability)/grid->x_step_size;  
+}
 
+double HarmonicMean(double argument_1, double argument_2){
+  return( 2*(argument_1*argument_2)/(argument_1 + argument_2));
 }
 
 double Mobility(UniformGrid grid, int position_i, int position_j, double flow_direction){
