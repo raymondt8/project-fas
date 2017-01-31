@@ -55,6 +55,53 @@ int GridPosition(UniformGrid grid, int x, int y, int z){
    return z*grid->x_size*grid->y_size + *grid->y_size;
   else if(x>=0 && y<0)
    return z*grid->x_size*grid->y_size + x;
-
+}
+void ArrayAdd(UniformGrid solution, UniformGrid array1, UnifromGrid array2){
+  for(int i = 0; i < solution->grid_size; i++){
+    solution->data[i] = array1->data[i] + array2->data[i];
+  }
 }
 
+void ArraySubtract(UniformGrid solution, UniformGrid array1, UnifromGrid array2){
+  for(int i = 0; i < solution->grid_size; i++){
+    solution->data[i] = array1->data[i] - array2->data[i];
+  }
+}
+
+void NewtonFAS(UniformGrid grid,UniformGrid new_grid, float tolerance, int max_iterations){
+  for(int i = 0; i < max_iterations; i++){
+    for(int z = 0; z < fine_grid->z_size, z++){
+      for(int y = 0; y < fine_grid->y_size, y++){
+        for(int x=0; x < fine_grid->x_size, x++){
+          int position = GridPosition(coarse_grid,x,y,z);
+          new_grid->saturation[position] = grid->saturation[GridPosition(coarse_grid,x,y,z)] - saturationFlux(grid,position)/SimpleJacobian(grid,position);
+        }
+      }
+    }
+    for(int z = 0; z < fine_grid->z_size, z++){
+      for(int y = 0; y < fine_grid->y_size, y+=2){
+        for(int x=0; x < fine_grid->x_size, x+=2){
+          int position = GridPosition(coarse_grid,x,y,z);
+          new_grid->pressure[position] = grid->pressure[position] - PressureFlux/SimplePressureJacobian; 
+        }
+      }
+    }
+   
+  }
+
+}
+void SimpleSaturationJacobian(UniformGrid jacobian, UniformGrid grid){
+  
+  for(int z = 0; z < grid->z_size, z++){
+    for(int y = 0; y < fine_grid->y_size, y++){
+      for(int x = 0; x < fine_grid->x_size, x++){
+        jacobian->data[GridPosition(jacobian,x,y,z)] =   
+      } 
+    }
+  }
+}
+float Flux(UniformGrid grid,int x,int y,int x int x_direction,int y_direction,int z_direction){
+  float result = 0.0;
+  if(x_direction != 0 && x+x_direction <0 && x+x_direction)
+  result = grid->x_face*permeability*
+}

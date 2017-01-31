@@ -36,6 +36,7 @@ void InterpolateGrid(
   UniformGrid fine_grid
 
 );
+
 /*
 Returns the calculated position in the grid array. If point is beyond the border, the border point is given
 */
@@ -45,4 +46,25 @@ int GridPosition(
   int y,
   int z
 );
+
+void ArrayAdd(
+  UniformGrid solution,
+  UniformGrid array1,
+  UniformGrid array2
+);
+
+void ArraySubtract(
+  UniformGrid solution,
+  UniformGrid array1,
+  UniformGrid array2
+);
+/*
+Performs a spezialized Newton's Method for the FAS with FV as base discretization. Calls the Finite Volume Method as part of the procedure
+*/
+void NewtonFAS(
+  UniformGrid grid,
+  float tolerance,
+  int max_iterations 
+);
+
 #endif 
