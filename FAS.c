@@ -79,8 +79,8 @@ void NewtonFAS(UniformGrid grid,UniformGrid new_grid, double tolerance, int max_
     for(int z = 0; z < fine_grid->z_size, z++){
       for(int y = 0; y < fine_grid->y_size, y++){
         for(int x=0; x < fine_grid->x_size, x++){
-          position = GridPosition(coarse_grid,x,y,z);
-          new_grid->saturation[position] = grid->saturation[GridPosition(coarse_grid,x,y,z)] - saturationFlux(grid,position)/SimpleJacobian(grid,position);
+          position = GridPosition(grid,x,y,z);
+          new_grid->saturation[position] = grid->saturation[GridPosition(grid,x,y,z)] - SaturationFunction(grid,x,y,z) / SimpleJacobian(grid,position);
           saturation_error += pow(new_grid->saturation[position] - grid->saturation,2.0);
         }
       }
@@ -89,7 +89,7 @@ void NewtonFAS(UniformGrid grid,UniformGrid new_grid, double tolerance, int max_
       for(int y = 0; y < fine_grid->y_size, y++){
         for(int x=0; x < fine_grid->x_size, x++){
           position = GridPosition(coarse_grid,x,y,z);
-          new_grid->pressure[position] = grid->pressure[position] - PressureFlux/SimplePressureJacobian; 
+          new_grid->pressure[position] = grid->pressure[position] - PressureFunction(grid,x,y,z) / SimplePressureJacobian(grid,x,y,z); 
           pressure_error = pow(new_grid->pressure[position] - grid->pressure[position],2.0);
         }
       }
@@ -115,48 +115,75 @@ void SimpleSaturationJacobian(UniformGrid jacobian, UniformGrid grid){
   for(int z = 0; z < grid->z_size, z++){
     for(int y = 0; y < fine_grid->y_size, y++){
       for(int x = 0; x < fine_grid->x_size, x++){
-        jacobian->data[GridPosition(jacobian,x,y,z)] =;  
+        jacobian->data[GridPosition(jacobian,x,y,z)] = ;  
       } 
     }
   }
 }
-double SaturationFlux(UniformGrid grid,UniformGrid old_grid,int x,int y,int z int x_direction,int y_direction,int z_direction){
+
+double SaturationFunction(UniformGrid grid,UniformGrid old_grid,int x,int y,int z){
   double result = 0.0;
-  if(x_direction != 0 && x+x_direction <0 && x+x_direction >)
-  result = grid->x_face*permeability*
-  
+ 
   if(x + x_dirextion >= 0 && x + x_direction <= grid->x_steps && y + y_direction <= 0 && y + y_direction <= grid->y_steps && z + z_direction >= 0 && z =< grid->z_steps){
     position = GridPosition(grid,x,y,z);
-    result = 
-
+    result = grid->saturation[position]-old_grid->saturation[position] 
+      + 2*(SaturationFlux(grid, old_grid,position, x, y, z, 1 , 0, 0)
+         + SaturationFlux(grid, old_grid,position, x, y, z, -1, 0, 0)
+         + SaturationFlux(grid, old_grid,position, x, y, z, 0 , 1, 0)
+         + SaturationFlux(grid, old_grid,position, x, y, z, 0 ,-1, 0)
+         + SaturationFlux(grid, old_grid,position, x, y, z, 0 , 0, 1)
+         + SaturationFlux(grid, old_grid,position, x, y, z, 0 , 0,-1)
+      );
+      /*TODO Account for wells*/
     return result;
   }else{
-    return 0.0;
+    return result;
   }
 }
 
-double Transmissibility(grid, int position_i int position_j, double flow_direction){
-  //TODO: Extend to use harmonic mean (?)
-  return((grid->x_face * grid->permeability)/grid->x_step_size;  
+double SaturationFlux(UniformGrid grid,int position_i, int x, int y, int z, int x_direction, int y_direction, int z_direction){
+  double result = 0.0;
+    
+  if(x + x_dirextion >= 0 && x + x_direction <= grid->x_steps && y + y_direction <= 0 && y + y_direction <= grid->y_steps && z + z_direction >= 0 && z =< grid->z_steps){
+    double position_j = GridPosition(grid,x+x_direction,y+ydirection,z+z_direction);
+    double flow_direction = grid->pressure[position_i] - grid->pressure[position_j] + grid->water.fluid.density * grid->gravity * z_direction;
+    
+    result = Transmissibility(grid,position_i,position_j, x_direction, y_direction) * Mobility(grid, position_i,position_j,flow_direction) * flow_direction;
+
+  }else{
+    return 0;
+  }  
 }
 
-double HarmonicMean(double argument_1, double argument_2){
-  return( 2*(argument_1*argument_2)/(argument_1 + argument_2));
+/*Do not need z-direction as it is default direction*/
+double Transmissibility(UniformGrid grid, int position_i, int position_j, int x_direction, int y_direction){
+  //TODO: Extend to use harmonic mean (?)
+  if(x_direction != 0){
+    return((grid->x_face * grid->permeability) / grid->x_step_size);  
+  }else if(y_direction != 0){
+    return((grid->y_face * grid->permeability) / grid->y_step_size);  
+  }else{
+    return((grid->z_face * grid->permeability) / grid->z_step_size);
+  }
+}
+
+double HarmonicMean(double value_1, double value_2){
+  return( 2 * (value_1 * value_2) / (value_1 + value_2));
 }
 
 double Mobility(UniformGrid grid, int position_i, int position_j, double flow_direction){
   if(flow_direction < 0){
-    return( (pow(grid->saturation[position_j],2.0) - 2*grid->saturation[position_j]*grid->water.fluid.relative_permeability)/pow(grid->saturation_denominator,2.0)*grid->water.fluid.viscosity );
+    return( (pow(grid->saturation[position_j],2.0) - 2*grid->saturation[position_j] * grid->water.fluid.relative_permeability) / pow(grid->saturation_denominator,2.0) * grid->water.fluid.viscosity );
   }else{
-    return( (pow(grid->saturation[position_i],2.0) - 2*grid->saturation[position_i]*grid->water.fluid.relative_permeability)/pow(grid->saturation_denominator,2.0)*grid->water.fluid.viscosity );
+    return( (pow(grid->saturation[position_i],2.0) - 2 * grid->saturation[position_i] * grid->water.fluid.relative_permeability) / pow(grid->saturation_denominator,2.0) * grid->water.fluid.viscosity );
   } 
 }
 
-double JacobianMobility(UniformGrid, int position_i, int position_j, double flow_direction){
-  if(flow_direction<0){    
-    return ((2*grid->saturation[position_j])/(pow(grid->saturation_denominator,2.0)*grid->water.fluid.viscosity));
+double JacobianMobility(UniformGrid grid, int position_i, int position_j, double flow_direction){
+  if(flow_direction < 0){    
+    return ((2 * grid->saturation[position_j]) / (pow(grid->saturation_denominator,2.0) * grid->water.fluid.viscosity));
   }else{
-    return ((2*grid->saturation[position_i])/(pow(grid->saturation_denominator,2.0)*grid->water.fluid.viscosity));
+    return ((2 * grid->saturation[position_i]) / (pow(grid->saturation_denominator,2.0) * grid->water.fluid.viscosity));
   
   }
 }

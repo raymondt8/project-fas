@@ -14,6 +14,7 @@ typedef Fluid_t Fluid;
 
 
 typedef struct{ 
+  double gravity;
   int grid_step_size; 
   int x_steps, y_steps, z_steps;
 
@@ -40,7 +41,7 @@ typedef struct{
 
 typedef UniformGrid_t* UnifromGrid
 
-UniformGrid CreateUniformGrid(double time_step,int x_steps, int y_steps, int x_steps, double permeability, Fluid Wetting, Fluid NonWetting){
+UniformGrid CreateUniformGrid(double time_step,int x_steps, int y_steps, int x_steps, double permeability, Fluid Wetting, Fluid NonWetting, double gravity){
   UniformGrid result = (UniformGrid)calloc(step_sizeof(UniformGrid));
   result->grid_step_size = 1.0/(x_steps*y_steps*z_steps);
 
@@ -69,6 +70,7 @@ UniformGrid CreateUniformGrid(double time_step,int x_steps, int y_steps, int x_s
   result->saturation_denominator = 1 - result->water.fluid.relative_permeability - result->oil.fluid.relative_permeability;
   result->volume = porosity * result->x_step_size * result->y_step_size * result->z_step_size;
   result->time_step = time_step;
+  result->gravity = gravity;
   return result;
 }
 

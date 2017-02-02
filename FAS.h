@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <math.h>
 /*
 Computes the right hand side.
 Input: 
@@ -34,7 +34,6 @@ void RestrictGrid(
 void InterpolateGrid(
   UniformGrid coarse_grid, 
   UniformGrid fine_grid
-
 );
 
 /*
@@ -65,6 +64,54 @@ void NewtonFAS(
   UniformGrid grid,
   float tolerance,
   int max_iterations 
+);
+/*
+Calculates the saturation function required in newtons method.
+*/
+double SaturationFunction(
+  UniformGrid grid,
+  UniformGrid old_grid,
+  int x,
+  int y,
+  int z
+);
+
+double SaturationFlux(
+  UniformGrid grid,
+  int position_i,
+  int x,
+  int y,
+  int z,
+  int x_direction,
+  int y_direction,
+  int z_direction
+);
+
+double Transmissibility(
+  UniformGrid grid, 
+  int position_i, 
+  int position_j, 
+  int x_direction, 
+  int y_direction
+);
+
+double HarmonicMean(
+  double value_1, 
+  double value_2
+);
+
+double Mobility(
+  UniformGrid grid,
+  int position_i,
+  int position_j,
+  int flow_direction
+);
+
+double JacobianMobility(
+  UniformGrid grid,
+  int position_i,
+  int position_j,
+  double flow_direction 
 );
 
 #endif 
